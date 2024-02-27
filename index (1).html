@@ -1,0 +1,260 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Power Plants Comparison Map</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+    <script src="power-plants.js"></script>
+
+    <link href="http://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: whitesmoke;
+            font-family: Lato, sans-serif;
+            color: #0D0000;
+        }
+
+        header {
+            padding: 6px 10%;
+        }
+
+        h1 {
+            display: inline-block;
+            margin-right: 20px;
+            color: #001323;
+        }
+
+        h2 {
+            display: inline-block;
+            color: #001323;
+        }
+
+        #map {
+            width: 80%;
+            height: 540px;
+            margin: 10px auto;
+        }
+
+        footer {
+            padding: 6px 10%;
+            width: 80%;
+        }
+
+        p {
+            font-size: 1em;
+            color: #0D0000;
+        }
+
+        .leaflet-popup-content {
+            font-size: 12px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Power Plants Comparison</h1>
+        <h2>Output and Fuel Type</h2>
+    </header>
+
+    <div id="map"></div>
+
+    <footer>
+        <p>Map by Joseph Idell</p>
+        <p>This was modified from last week's map by using two principles in Design Principles for Making Maps on the Web by Mamata Akella.  I believe the previous map was too cluttered with the large radii for many of the power plants on the map. This led to much overlap especially around the southwest with the large solar installations.  I chose to make each dot smaller in a proportional way to experiment with the principle of "Positioning should match the map’s intent."  This encourages the user to zoom in to see individual locations and click on sites to see their information. 
+            I also chose to use colors that more closely align with perceptions of each power source.  This approach was inspired by the principle of "Colors should align with expectations." </p>
+    </footer>
+
+    <script>
+        // Map initialization
+        var map = L.map("map").setView([36, -94], 4);
+
+        // Tile layer
+      /*  L.tileLayer("http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png", {
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+            subdomains: "abcd",
+            maxZoom: 19,
+        }).addTo(map); */
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+        
+    
+      
+   plants.features.sort(function(a, b) {
+    return b.properties.capacity_mw - a.properties.capacity_mw;
+});
+    
+    
+      var Biomass = L.geoJson(plants, {
+          pointToLayer: function(feature,latlng) {
+              console.log(feature.properties.fuel_source)
+              return L.circleMarker(latlng, {
+                 color: 'black',
+                 weight: 3,
+                 fillColor: 'blue',
+                 fillOpacity: .4,
+                 radius: getRadius(feature.properties.capacity_mw) 
+              });   
+          },
+          
+      filter : function(feature, layer){
+              if(feature.properties.fuel_source['Nuclear']){
+                  return feature
+              };
+             
+          },
+         
+    
+    onEachFeature : function(feature,layer) {
+    layer.on('mouseover', function() {
+    layer.setStyle({
+        fillColor: 'green'
+    });
+});
+layer.on('mouseout', function() {
+    layer.setStyle({
+        fillColor: 'grey'
+    });
+});          
+  
+           
+          
+          var name = feature.properties.plant_name
+          var capacity = feature.properties.capacity_mw.toLocaleString()
+          var fuel = feature.properties.fuel_source
+      
+                                                
+          
+          var popup = ("<b>"+name+"</b><br>"
+              +capacity+ " MW" + "<br>")
+                       layer.bindPopup(popup)
+          }
+          
+          
+      }).addTo(map);
+
+      var Geothermal = L.geoJson(plants, { 
+          pointToLayer: function(feature,latlng) {
+              console.log(feature.properties.fuel_source)
+              return L.circleMarker(latlng, {
+                 color: 'brown',
+                 weight: 2,
+                 fillColor: 'green',
+                 fillOpacity: .5,
+                 radius: getRadius(feature.properties.capacity_mw)
+              });
+},
+
+filter : function(feature, layer){
+              if(feature.properties.fuel_source['Geothermal']){
+                  return feature
+              };
+          },
+         
+    
+    onEachFeature : function(feature,layer) {
+    layer.on('mouseover', function() {
+    layer.setStyle({
+        fillColor: 'blue'
+    });
+});
+layer.on('mouseout', function() {
+    layer.setStyle({
+        fillColor: 'red'
+    });
+});          
+  
+           
+          
+          var name = feature.properties.plant_name
+          var capacity = feature.properties.capacity_mw.toLocaleString()
+          var fuel = feature.properties.fuel_source
+      
+                                                
+          
+          var popup = ("<b>"+name+"</b><br>"
+              +capacity+ " MW" + "<br>")
+                       layer.bindPopup(popup)
+          }
+          
+          
+      }).addTo(map);
+
+      var Solar = L.geoJson(plants, { 
+          pointToLayer: function(feature,latlng) {
+              console.log(feature.properties.fuel_source)
+              return L.circleMarker(latlng, {
+                 color: 'green',
+                 weight: 2,
+                 fillColor: 'orange',
+                 fillOpacity: .5,
+                 radius: getRadius(feature.properties.capacity_mw)
+              });
+},
+
+filter : function(feature, layer){
+              if(feature.properties.fuel_source['Solar']){
+                  return feature
+              };
+             
+          },
+         
+    
+    onEachFeature : function(feature,layer) {
+    layer.on('mouseover', function() {
+    layer.setStyle({
+        fillColor: 'blue'
+    });
+});
+layer.on('mouseout', function() {
+    layer.setStyle({
+        fillColor: 'orange'
+    });
+});          
+  
+          
+          
+          var name = feature.properties.plant_name
+          var capacity = feature.properties.capacity_mw.toLocaleString()
+          var fuel = feature.properties.fuel_source
+      
+                                                
+          
+          var popup = ("<b>"+name+"</b><br>"
+              +capacity+ " MW" + "<br>")
+                       layer.bindPopup(popup)
+          }
+          
+          
+      }).addTo(map);
+    
+       
+       function getRadius(area){
+        var radius = Math.sqrt(area/Math.PI);
+        return radius *.6 
+}
+       
+
+        var sourceLayers = {
+       "<b style='color:blue'>Biomass</b>": Biomass,
+       "<b style='color:green'>Geothermal</b>": Geothermal,
+       "<b style='color:orange'>Solar</b>": Solar
+    
+    };
+       L.control.layers(null, sourceLayers, {collapsed:false} )
+       
+       .addTo(map);
+          
+    </script>
+    
+</body>
+
+</html>
